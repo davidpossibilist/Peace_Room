@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Peace Room — Ukraine Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0D2240; --blue: #1B3A6B; --rust: #5C1A00; --sage: #1A5C2A;
+  --bg: #F4F1EC; --surface: #FFFFFF; --surface2: #F8F6F1;
+  --border: rgba(0,0,0,0.07); --border2: rgba(0,0,0,0.12);
+  --text: #1A1A1A; --text2: #555; --text3: #999;
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --putin-bg:#FBF0EA; --putin-b:#C4714A; --putin-t:#5C1A00; --putin-p:#F5D4C4;
+  --zel-bg:#EAF1FB;   --zel-b:#378ADD;   --zel-t:#042C53;   --zel-p:#BDD8F5;
+  --trump-bg:#EAF5EA; --trump-b:#639922; --trump-t:#173404; --trump-p:#C3DF95;
+  --macron-bg:#F5EAF8;--macron-b:#7F77DD;--macron-t:#26215C;--macron-p:#D8D4F6;
+  --merz-bg:#FBF5E0;  --merz-b:#BA7517;  --merz-t:#412402;  --merz-p:#F5DBA0;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;}
+
+/* ── NAV ── */
+nav{background:var(--navy);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:50px;position:sticky;top:0;z-index:200;}
+.nav-brand{font-family:var(--serif);font-size:17px;color:#E8E4DC;letter-spacing:.02em;}
+.nav-sub{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;}
+.nav-tabs{display:flex;gap:2px;}
+.nav-tab{font-size:12px;color:rgba(255,255,255,.45);padding:5px 13px;border-radius:6px;cursor:pointer;border:none;background:none;font-family:var(--sans);transition:all .15s;}
+.nav-tab:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.07);}
+.nav-tab.active{color:#fff;background:rgba(255,255,255,.13);}
+
+/* ── VIEWS ── */
+.view{display:none;}.view.active{display:block;}
+
+/* ── SHARED UTILITIES ── */
+.card{background:var(--surface);border:0.5px solid var(--border2);border-radius:12px;padding:18px 20px;}
+.panel-label{font-size:9.5px;font-weight:500;letter-spacing:.11em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+.clickable-section{cursor:pointer;transition:box-shadow .15s;}
+.clickable-section:hover{box-shadow:0 0 0 2px var(--blue);}
+
+/* ── HOME VIEW LAYOUT ── */
+.home{display:grid;grid-template-columns:220px 1fr 190px;grid-template-rows:auto auto auto;gap:10px;padding:16px 20px 40px;max-width:1200px;margin:0 auto;}
+
+/* THRESHOLD BANNER */
+.threshold-bar{grid-column:1/-1;background:var(--navy);border-radius:10px;padding:12px 18px;display:flex;align-items:center;gap:24px;}
+.threshold-title{font-family:var(--serif);font-size:13px;color:#E8E4DC;white-space:nowrap;}
+.threshold-steps{display:flex;gap:10px;flex:1;}
+.t-step{background:rgba(255,255,255,.07);border-radius:7px;padding:8px 12px;flex:1;cursor:pointer;border:0.5px solid rgba(255,255,255,.1);transition:background .15s;}
+.t-step:hover{background:rgba(255,255,255,.12);}
+.t-step-num{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
+.t-step-title{font-size:12px;color:rgba(255,255,255,.85);font-weight:500;margin-bottom:2px;}
+.t-step-desc{font-size:10.5px;color:rgba(255,255,255,.45);line-height:1.4;}
+
+/* LEFT WALL */
+.left-wall{grid-column:1;grid-row:2/4;display:flex;flex-direction:column;gap:10px;}
+
+/* TABLE / CENTER */
+.center-col{grid-column:2;grid-row:2;display:flex;flex-direction:column;gap:10px;}
+
+/* ZOPA under table */
+.zopa-panel{grid-column:2;grid-row:3;}
+
+/* RIGHT WALL */
+.right-wall{grid-column:3;grid-row:2/4;display:flex;flex-direction:column;gap:10px;}
+
+/* ── LEFT WALL: LEADER PROFILES ── */
+.profiles-panel{}
+.leader-chip{border-radius:8px;padding:7px 9px;border:0.5px solid transparent;margin-bottom:6px;cursor:pointer;transition:all .15s;}
+.leader-chip:last-child{margin-bottom:0;}
+.leader-chip:hover{opacity:.85;}
+.lc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+.lc-name{font-size:12px;font-weight:500;}
+.lc-role{font-size:9.5px;opacity:.65;}
+.lc-interests{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.lc-pill{font-size:9px;padding:1px 6px;border-radius:8px;}
+.see-more{font-size:9px;opacity:.5;margin-top:3px;}
+
+/* ── LEFT WALL: RECENT QUOTES ── */
+.quotes-panel{flex:1;}
+.quote-item{padding:6px 0;border-bottom:0.5px solid var(--border);cursor:pointer;}
+.quote-item:last-child{border-bottom:none;}
+.q-leader{font-size:9.5px;font-weight:500;margin-bottom:1px;}
+.q-text{font-size:10.5px;color:var(--text2);line-height:1.45;font-style:italic;}
+.q-date{font-size:9px;color:var(--text3);margin-top:2px;}
+.live-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#3DAA6A;margin-right:4px;vertical-align:middle;}
+
+/* ── CENTER: VICTORY SPEECHES TABLE ── */
+.table-panel{}
+.table-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.table-header h2{font-family:var(--serif);font-size:16px;font-weight:400;}
+.harmony-badge{font-size:9.5px;color:#1A5C2A;background:#EAF3DE;padding:3px 9px;border-radius:20px;}
+.primary-speeches{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.supporting-speeches{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+
+.speech-mini{border-radius:9px;border:0.5px solid transparent;overflow:hidden;cursor:pointer;transition:transform .15s;}
+.speech-mini:hover{transform:scale(1.01);}
+.sm-header{padding:10px 12px 8px;}
+.sm-name{font-family:var(--serif);font-size:14px;font-weight:400;margin-bottom:1px;}
+.sm-country{font-size:9.5px;opacity:.6;margin-bottom:6px;}
+.sm-tagline{font-size:10px;font-style:italic;opacity:.7;line-height:1.4;}
+.sm-themes{background:var(--surface);padding:9px 12px;}
+.sm-theme{margin-bottom:5px;}
+.sm-theme:last-child{margin-bottom:0;}
+.sm-theme-title{font-size:10.5px;font-weight:500;margin-bottom:2px;}
+.sm-bullets{list-style:none;}
+.sm-bullets li{font-size:10px;color:var(--text2);line-height:1.45;padding-left:10px;position:relative;}
+.sm-bullets li::before{content:'';position:absolute;left:2px;top:6px;width:4px;height:4px;border-radius:50%;}
+
+.speech-xs{border-radius:8px;border:0.5px solid transparent;overflow:hidden;cursor:pointer;transition:transform .15s;}
+.speech-xs:hover{transform:scale(1.02);}
+.xs-header{padding:8px 10px 6px;}
+.xs-name{font-family:var(--serif);font-size:12px;font-weight:400;margin-bottom:1px;}
+.xs-country{font-size:9px;opacity:.6;margin-bottom:4px;}
+.xs-tagline{font-size:9.5px;font-style:italic;opacity:.7;line-height:1.4;}
+.xs-body{background:var(--surface);padding:7px 10px;}
+.xs-theme-title{font-size:9.5px;font-weight:500;margin-bottom:2px;margin-top:4px;}
+.xs-theme-title:first-child{margin-top:0;}
+.xs-bullets li{font-size:9px;color:var(--text2);line-height:1.4;padding-left:8px;position:relative;}
+.xs-bullets li::before{content:'';position:absolute;left:1px;top:5px;width:3px;height:3px;border-radius:50%;}
+
+.viz-victory{margin-top:8px;border:0.5px dashed var(--border2);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;}
+.vv-img{width:60px;height:40px;background:var(--surface2);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;color:var(--text3);}
+.vv-text strong{display:block;font-size:11px;font-weight:500;margin-bottom:1px;}
+.vv-text span{font-size:10px;color:var(--text2);}
+
+/* ── ZOPA MINI PANEL ── */
+.zopa-mini{display:grid;grid-template-columns:160px 1fr;gap:14px;align-items:start;}
+.zopa-venn-wrap{position:relative;height:80px;}
+.zopa-badges{display:flex;flex-direction:column;gap:5px;}
+.zopa-badge{border-radius:7px;padding:6px 9px;border:0.5px solid transparent;}
+.zb-tag{font-size:9px;font-weight:500;padding:1px 6px;border-radius:10px;display:inline-block;margin-bottom:3px;}
+.zb-title{font-size:11px;font-weight:500;margin-bottom:1px;}
+.zb-desc{font-size:10px;color:var(--text2);line-height:1.4;}
+
+/* ── RIGHT WALL: GALLERY ── */
+.gallery-panel{}
+.gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.gallery-item{aspect-ratio:4/3;border-radius:5px;background:var(--surface2);border:0.5px solid var(--border);display:flex;flex-direction:column;justify-content:flex-end;padding:4px;overflow:hidden;cursor:pointer;transition:opacity .15s;}
+.gallery-item:hover{opacity:.85;}
+.gallery-caption{font-size:8px;color:var(--text2);line-height:1.3;}
+.gallery-featured{grid-column:1/3;aspect-ratio:2/1;border:1px dashed rgba(0,0,0,.15);border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;text-align:center;cursor:pointer;}
+.gallery-featured-icon{font-size:22px;color:var(--text3);margin-bottom:4px;}
+.gallery-featured-text{font-size:9px;color:var(--text3);line-height:1.4;}
+
+/* ── RIGHT WALL: SPATIAL BALCONY ── */
+.balcony-panel{cursor:pointer;}
+.balcony-mini{height:80px;position:relative;border-radius:8px;background:var(--surface2);overflow:hidden;margin-bottom:8px;}
+.mini-node{position:absolute;width:52px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;}
+.mini-node-label{font-size:8px;font-weight:500;text-align:center;line-height:1.2;}
+.balcony-btn{width:100%;font-size:11px;padding:7px;border-radius:7px;border:0.5px solid var(--border2);background:var(--surface);cursor:pointer;font-family:var(--sans);color:var(--blue);transition:all .15s;}
+.balcony-btn:hover{background:var(--blue);color:#fff;}
+
+/* ── RIGHT WALL: TEMPORAL BALCONY ── */
+.temporal-panel{flex:1;}
+.temporal-cols{display:flex;flex-direction:column;gap:4px;}
+.t-col-label{font-size:9px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;margin-top:7px;}
+.t-col-label:first-child{margin-top:0;}
+.t-item{font-size:10px;color:var(--text2);background:var(--surface2);border-radius:5px;padding:4px 7px;border:0.5px solid var(--border);}
+
+/* ── DEEP DIVE VIEWS ── */
+.deep{max-width:1100px;margin:0 auto;padding:24px 20px 48px;}
+.deep-header{margin-bottom:22px;}
+.deep-header h1{font-family:var(--serif);font-size:26px;font-weight:400;color:var(--navy);margin-bottom:4px;}
+.deep-header p{font-size:13px;color:var(--text3);}
+
+/* SPEECHES DEEP */
+.speeches-intro{font-size:13px;color:var(--text2);line-height:1.7;max-width:680px;margin-bottom:22px;}
+.speeches-grid-full{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.speeches-row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.speech-full{border-radius:12px;overflow:hidden;border:0.5px solid transparent;}
+.sf-header{padding:18px 18px 14px;}
+.sf-name{font-family:var(--serif);font-size:20px;font-weight:400;margin-bottom:2px;}
+.sf-country{font-size:10.5px;opacity:.6;margin-bottom:8px;}
+.sf-tagline{font-size:11px;font-style:italic;opacity:.75;line-height:1.5;}
+.sf-body{background:var(--surface);padding:14px 18px;}
+.sf-theme{margin-bottom:14px;}
+.sf-theme:last-child{margin-bottom:0;}
+.sf-theme-title{font-family:var(--serif);font-size:14px;font-weight:500;margin-bottom:7px;}
+.sf-bullets{list-style:none;}
+.sf-bullets li{font-size:12px;color:var(--text2);line-height:1.6;padding-left:13px;position:relative;margin-bottom:3px;}
+.sf-bullets li::before{content:'';position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;}
+.speech-sm{border-radius:10px;overflow:hidden;border:0.5px solid transparent;}
+.ss-header{padding:12px 14px 10px;}
+.ss-name{font-family:var(--serif);font-size:15px;font-weight:400;margin-bottom:1px;}
+.ss-country{font-size:9.5px;opacity:.6;margin-bottom:6px;}
+.ss-tagline{font-size:10px;font-style:italic;opacity:.75;line-height:1.5;}
+.ss-body{background:var(--surface);padding:10px 14px;}
+.ss-theme-title{font-size:12px;font-weight:500;margin-bottom:5px;margin-top:9px;}
+.ss-theme-title:first-child{margin-top:0;}
+.ss-bullets li{font-size:11px;color:var(--text2);line-height:1.55;padding-left:12px;position:relative;margin-bottom:2px;}
+.ss-bullets li::before{content:'';position:absolute;left:2px;top:7px;width:4px;height:4px;border-radius:50%;}
+.harmony-full{margin-top:18px;background:var(--navy);border-radius:12px;padding:20px 24px;color:rgba(255,255,255,.82);font-size:13px;line-height:1.7;}
+.harmony-full h3{font-family:var(--serif);font-size:16px;font-weight:400;color:#fff;margin-bottom:10px;}
+
+/* PROFILES DEEP */
+.profiles-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;}
+.profile-card{border-radius:10px;padding:14px;border:0.5px solid transparent;}
+.pc-name{font-family:var(--serif);font-size:15px;font-weight:400;margin-bottom:2px;}
+.pc-role{font-size:10px;opacity:.6;margin-bottom:10px;}
+.pc-section-label{font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;margin-top:9px;}
+.pc-section-label:first-of-type{margin-top:0;}
+.pc-val{font-size:11px;line-height:1.5;}
+.pc-formation{font-size:10.5px;color:var(--text2);line-height:1.5;border-top:0.5px solid rgba(0,0,0,.08);padding-top:9px;margin-top:9px;font-style:italic;}
+.placeholder-note{background:#FBF5E0;border:0.5px solid #BA7517;border-radius:8px;padding:10px 14px;font-size:11.5px;color:#633806;margin-bottom:16px;}
+
+/* ZOPA DEEP */
+.interest-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:18px;}
+.int-col{border-radius:10px;padding:12px;border:0.5px solid transparent;}
+.int-col-name{font-family:var(--serif);font-size:13px;font-weight:500;margin-bottom:1px;}
+.int-col-country{font-size:9.5px;margin-bottom:9px;opacity:.65;}
+.int-row{margin-bottom:7px;}
+.int-row-label{font-size:8.5px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;}
+.int-row-val{font-size:10.5px;line-height:1.45;}
+.matrix-wrap{overflow-x:auto;margin-bottom:18px;}
+table{width:100%;border-collapse:collapse;font-size:11.5px;}
+th{font-size:10px;font-weight:500;padding:8px 10px;text-align:left;color:var(--text3);border-bottom:0.5px solid var(--border2);white-space:nowrap;}
+td{padding:7px 10px;border-bottom:0.5px solid var(--border);vertical-align:top;color:var(--text2);line-height:1.5;}
+tr:last-child td{border-bottom:none;}
+td.issue{font-weight:500;font-size:11.5px;color:var(--text);white-space:nowrap;}
+.badge{display:inline-block;font-size:9px;font-weight:500;padding:2px 7px;border-radius:20px;}
+.bg-green{background:#EAF3DE;color:#3B6D11;}.bg-amber{background:#FAEEDA;color:#854F0B;}.bg-red{background:#FCEBEB;color:#A32D2D;}
+.pillars{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.pillar{background:var(--surface2);border-radius:10px;padding:14px;border:0.5px solid var(--border);}
+.pillar-num{font-size:9.5px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.pillar-title{font-family:var(--serif);font-size:13px;font-weight:500;margin-bottom:9px;}
+.pillar-row{display:flex;gap:7px;margin-bottom:4px;}
+.p-leader{font-size:9.5px;font-weight:500;min-width:54px;padding-top:1px;}
+.p-val{font-size:11px;color:var(--text2);line-height:1.4;}
+.unresolved{display:flex;flex-direction:column;gap:6px;}
+.unres{border-left:3px solid #E24B4A;background:#FCEBEB;padding:9px 13px;border-radius:0 7px 7px 0;}
+.unres-title{font-size:12px;font-weight:500;color:#501313;margin-bottom:2px;}
+.unres-desc{font-size:11px;color:#791F1F;line-height:1.5;}
+
+/* TRACKER DEEP */
+.tracker-note{background:var(--surface2);border:0.5px solid var(--border2);border-radius:10px;padding:14px 16px;margin-bottom:18px;font-size:12.5px;color:var(--text2);line-height:1.65;}
+.theme-block{margin-bottom:20px;}
+.theme-block-title{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--navy);border-bottom:0.5px solid var(--border2);padding-bottom:8px;margin-bottom:12px;}
+.quote-card{border-radius:8px;overflow:hidden;margin-bottom:8px;border:0.5px solid transparent;}
+.qc-head{padding:6px 12px 4px;display:flex;align-items:center;gap:8px;}
+.qc-leader{font-size:10.5px;font-weight:500;}
+.qc-meta{font-size:9.5px;opacity:.6;}
+.qc-body{padding:8px 12px 10px;}
+.qc-quote{font-size:12px;font-style:italic;color:var(--text2);line-height:1.6;}
+.qc-note{margin-top:8px;padding:7px 9px;background:rgba(255,255,255,.6);border-radius:5px;border-left:2px solid #aaa;}
+.qc-note-label{font-size:8.5px;font-weight:500;color:#777;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;}
+.qc-note-text{font-size:11px;color:var(--text2);line-height:1.5;font-style:italic;}
+
+footer{text-align:center;font-size:11px;color:var(--text3);padding:24px 0 40px;letter-spacing:.05em;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div>
+    <div class="nav-brand">The Peace Room</div>
+  </div>
+  <div class="nav-sub">Ukraine · Russia · May 2026</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="show('home',this)">The room</button>
+    <button class="nav-tab" onclick="show('speeches',this)">Victory speeches</button>
+    <button class="nav-tab" onclick="show('profiles',this)">Leader profiles</button>
+    <button class="nav-tab" onclick="show('zopa',this)">ZOPA map</button>
+    <button class="nav-tab" onclick="show('tracker',this)">Statements</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     HOME VIEW — THE ROOM
+══════════════════════════════════════════════════════════ -->
+<div class="view active" id="view-home">
+<div class="home">
+
+  <!-- THRESHOLD -->
+  <div class="threshold-bar" onclick="show('speeches',document.querySelectorAll('.nav-tab')[0])">
+    <div class="threshold-title">The threshold</div>
+    <div class="threshold-steps">
+      <div class="t-step">
+        <div class="t-step-num">Step 1</div>
+        <div class="t-step-title">Personal balcony</div>
+        <div class="t-step-desc">"What do you know today that you didn't know last time? What are you most uncertain about?"</div>
+      </div>
+      <div class="t-step">
+        <div class="t-step-num">Step 2</div>
+        <div class="t-step-title">Set your intention</div>
+        <div class="t-step-desc">Preparing for a meeting · Working on speeches · Reviewing what's changed · Getting up to speed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEFT WALL -->
+  <div class="left-wall">
+
+    <div class="card clickable-section profiles-panel" onclick="show('profiles',document.querySelectorAll('.nav-tab')[2])">
+      <div class="panel-label">Leader profiles →</div>
+      <div class="leader-chip" style="background:var(--putin-bg);border-color:var(--putin-b);">
+        <div class="lc-top"><span class="lc-name" style="color:var(--putin-t);">Vladimir Putin</span><span class="lc-role" style="color:var(--putin-t);">Russia</span></div>
+        <div class="lc-interests">
+          <div class="lc-pill" style="background:var(--putin-p);color:var(--putin-t);">Not humiliated</div>
+          <div class="lc-pill" style="background:var(--putin-p);color:var(--putin-t);">Great power equal</div>
+          <div class="lc-pill" style="background:var(--putin-p);color:var(--putin-t);">Reverse 1990s</div>
+        </div>
+      </div>
+      <div class="leader-chip" style="background:var(--zel-bg);border-color:var(--zel-b);">
+        <div class="lc-top"><span class="lc-name" style="color:var(--zel-t);">Volodymyr Zelensky</span><span class="lc-role" style="color:var(--zel-t);">Ukraine</span></div>
+        <div class="lc-interests">
+          <div class="lc-pill" style="background:var(--zel-p);color:var(--zel-t);">Ukraine survived</div>
+          <div class="lc-pill" style="background:var(--zel-p);color:var(--zel-t);">Real deterrence</div>
+          <div class="lc-pill" style="background:var(--zel-p);color:var(--zel-t);">European future</div>
+        </div>
+      </div>
+      <div class="leader-chip" style="background:var(--trump-bg);border-color:var(--trump-b);">
+        <div class="lc-top"><span class="lc-name" style="color:var(--trump-t);">Donald Trump</span><span class="lc-role" style="color:var(--trump-t);">United States</span></div>
+        <div class="lc-interests">
+          <div class="lc-pill" style="background:var(--trump-p);color:var(--trump-t);">Deal credit</div>
+          <div class="lc-pill" style="background:var(--trump-p);color:var(--trump-t);">America First</div>
+        </div>
+      </div>
+      <div class="leader-chip" style="background:var(--macron-bg);border-color:var(--macron-b);">
+        <div class="lc-top"><span class="lc-name" style="color:var(--macron-t);">Emmanuel Macron</span><span class="lc-role" style="color:var(--macron-t);">France</span></div>
+        <div class="lc-interests">
+          <div class="lc-pill" style="background:var(--macron-p);color:var(--macron-t);">Europe decisive</div>
+          <div class="lc-pill" style="background:var(--macron-p);color:var(--macron-t);">Vision vindicated</div>
+        </div>
+      </div>
+      <div class="leader-chip" style="background:var(--merz-bg);border-color:var(--merz-b);margin-bottom:0;">
+        <div class="lc-top"><span class="lc-name" style="color:var(--merz-t);">Friedrich Merz</span><span class="lc-role" style="color:var(--merz-t);">Germany</span></div>
+        <div class="lc-interests">
+          <div class="lc-pill" style="background:var(--merz-p);color:var(--merz-t);">Germany was there</div>
+          <div class="lc-pill" style="background:var(--merz-p);color:var(--merz-t);">Trusted again</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card clickable-section quotes-panel" onclick="show('tracker',document.querySelectorAll('.nav-tab')[4])">
+      <div class="panel-label"><span class="live-dot"></span>Recent quotes →</div>
+      <div class="quote-item">
+        <div class="q-leader" style="color:var(--putin-t);">Putin</div>
+        <div class="q-text">"The matter is coming to an end..."</div>
+        <div class="q-date">May 9, 2026 · Victory Day</div>
+      </div>
+      <div class="quote-item">
+        <div class="q-leader" style="color:var(--zel-t);">Zelensky</div>
+        <div class="q-text">"We need security guarantees, not a ceasefire line."</div>
+        <div class="q-date">May 12, 2026 · Press conference</div>
+      </div>
+      <div class="quote-item">
+        <div class="q-leader" style="color:var(--trump-t);">Trump</div>
+        <div class="q-text">"Very close. We are getting very close."</div>
+        <div class="q-date">May 12, 2026 · White House lawn</div>
+      </div>
+      <div class="quote-item">
+        <div class="q-leader" style="color:var(--macron-t);">Macron</div>
+        <div class="q-text">"Europe has a leading role to play in this process."</div>
+        <div class="q-date">Feb 24, 2026 · G7 Statement</div>
+      </div>
+      <div class="quote-item" style="border-bottom:none;">
+        <div class="q-leader" style="color:var(--merz-t);">Merz</div>
+        <div class="q-text">"Independence from the USA — step by step, we will achieve it."</div>
+        <div class="q-date">Feb 14, 2026 · Munich Security Conf.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CENTER: TABLE -->
+  <div class="center-col">
+    <div class="card clickable-section table-panel" onclick="show('speeches',document.querySelectorAll('.nav-tab')[1])">
+      <div class="table-header">
+        <h2>Victory speeches</h2>
+        <span class="harmony-badge">✓ Harmony check passed</span>
+      </div>
+
+      <div class="primary-speeches">
+        <div class="speech-mini" style="background:var(--putin-bg);border-color:var(--putin-b);">
+          <div class="sm-header">
+            <div class="sm-name" style="color:var(--putin-t);">Vladimir Putin</div>
+            <div class="sm-country" style="color:var(--putin-t);">President of Russia</div>
+            <div class="sm-tagline" style="color:var(--putin-t);">Russia stood firm · The world respects us again · Our future is secure</div>
+          </div>
+          <div class="sm-themes">
+            <div class="sm-theme">
+              <div class="sm-theme-title" style="color:var(--putin-t);">Russia stood firm</div>
+              <ul class="sm-bullets">
+                <li style="color:var(--text2);">We protected our civilization from those who sought to destroy it.<span style="position:absolute;left:2px;top:6px;width:4px;height:4px;border-radius:50%;background:var(--putin-b);display:block;"></span></li>
+                <li>Russia was not defeated. Russia was not humiliated. Russia did not break.</li>
+              </ul>
+            </div>
+            <div class="sm-theme">
+              <div class="sm-theme-title" style="color:var(--putin-t);">The world respects us again</div>
+              <ul class="sm-bullets">
+                <li>Russia sits at the table of great powers — not as a supplicant, but as an equal.</li>
+              </ul>
+            </div>
+            <div class="sm-theme">
+              <div class="sm-theme-title" style="color:var(--putin-t);">Our future is secure</div>
+              <ul class="sm-bullets">
+                <li>The threat to Russia's western border has been addressed. Our red lines respected.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="speech-mini" style="background:var(--zel-bg);border-color:var(--zel-b);">
+          <div class="sm-header">
+            <div class="sm-name" style="color:var(--zel-t);">Volodymyr Zelensky</div>
+            <div class="sm-country" style="color:var(--zel-t);">President of Ukraine</div>
+            <div class="sm-tagline" style="color:var(--zel-t);">Ukraine survived · Ukraine chose Europe · Ukraine will rise</div>
+          </div>
+          <div class="sm-themes">
+            <div class="sm-theme">
+              <div class="sm-theme-title" style="color:var(--zel-t);">Ukraine survived</div>
+              <ul class="sm-bullets"><li>On February 24, 2022, they came to erase us. We are still here.</li></ul>
+            </div>
+            <div class="sm-theme">
+              <div class="sm-theme-title" style="color:var(--zel-t);">Ukraine chose Europe</div>
+              <ul class="sm-bullets"><li>The security architecture that protects us is real, armed, and will respond.</li></ul>
+            </div>
+            <div class="sm-theme">
+              <div class="sm-theme-title" style="color:var(--zel-t);">Ukraine will rise</div>
+              <ul class="sm-bullets"><li>To those we lost — this is your legacy. Ukraine lives because you chose not to let it die.</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="supporting-speeches">
+        <div class="speech-xs" style="background:var(--trump-bg);border-color:var(--trump-b);">
+          <div class="xs-header"><div class="xs-name" style="color:var(--trump-t);">Donald Trump</div><div class="xs-country" style="color:var(--trump-t);">United States</div><div class="xs-tagline" style="color:var(--trump-t);">Deal of the century · America First · I did what no one else could</div></div>
+          <div class="xs-body">
+            <div class="xs-theme-title" style="color:var(--trump-t);">The deal of the century</div>
+            <ul class="xs-bullets sm-bullets"><li>Every expert said it couldn't be done. I did it.<span style="position:absolute;left:1px;top:5px;width:3px;height:3px;border-radius:50%;background:var(--trump-b);display:block;"></span></li></ul>
+            <div class="xs-theme-title" style="color:var(--trump-t);">America First, always</div>
+            <ul class="xs-bullets sm-bullets"><li>No American soldiers. No American checks for Europe's security.</li></ul>
+            <div class="xs-theme-title" style="color:var(--trump-t);">I did what no one else could</div>
+            <ul class="xs-bullets sm-bullets"><li>The guns are silent. History will remember this.</li></ul>
+          </div>
+        </div>
+        <div class="speech-xs" style="background:var(--macron-bg);border-color:var(--macron-b);">
+          <div class="xs-header"><div class="xs-name" style="color:var(--macron-t);">Emmanuel Macron</div><div class="xs-country" style="color:var(--macron-t);">France</div><div class="xs-tagline" style="color:var(--macron-t);">Europe was decisive · France led · The vision was right</div></div>
+          <div class="xs-body">
+            <div class="xs-theme-title" style="color:var(--macron-t);">Europe was decisive</div>
+            <ul class="xs-bullets sm-bullets"><li>The sceptics said strategic autonomy was a vanity project. They were wrong.<span style="position:absolute;left:1px;top:5px;width:3px;height:3px;border-radius:50%;background:var(--macron-b);display:block;"></span></li></ul>
+            <div class="xs-theme-title" style="color:var(--macron-t);">France led</div>
+            <ul class="xs-bullets sm-bullets"><li>French diplomacy never stopped working — at every table, every capital.</li></ul>
+          </div>
+        </div>
+        <div class="speech-xs" style="background:var(--merz-bg);border-color:var(--merz-b);">
+          <div class="xs-header"><div class="xs-name" style="color:var(--merz-t);">Friedrich Merz</div><div class="xs-country" style="color:var(--merz-t);">Germany</div><div class="xs-tagline" style="color:var(--merz-t);">Germany was there · Zeitenwende real · Trusted again</div></div>
+          <div class="xs-body">
+            <div class="xs-theme-title" style="color:var(--merz-t);">Germany was there</div>
+            <ul class="xs-bullets sm-bullets"><li>Not watching. Not deliberating. Not abstaining. There.<span style="position:absolute;left:1px;top:5px;width:3px;height:3px;border-radius:50%;background:var(--merz-b);display:block;"></span></li></ul>
+            <div class="xs-theme-title" style="color:var(--merz-t);">We are trusted again</div>
+            <ul class="xs-bullets sm-bullets"><li>Poland trusts us more. The Baltic states trust us more. Ukraine trusts us more.</li></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="viz-victory">
+        <div class="vv-img">◎</div>
+        <div class="vv-text">
+          <strong>Visualizing victory</strong>
+          <span>Placeholder: the aspirational image for this conflict — what resolution looks like. Add designed image here.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZOPA PANEL -->
+  <div class="zopa-panel card clickable-section" onclick="show('zopa',document.querySelectorAll('.nav-tab')[3])">
+    <div class="panel-label">ZOPA map →</div>
+    <div class="zopa-mini">
+      <div style="position:relative;height:88px;">
+        <svg width="160" height="88" style="position:absolute;top:0;left:0;">
+          <ellipse cx="55" cy="44" rx="46" ry="36" fill="#FBF0EA" stroke="#C4714A" stroke-width="0.7" opacity="0.7"/>
+          <ellipse cx="105" cy="44" rx="46" ry="36" fill="#EAF1FB" stroke="#378ADD" stroke-width="0.7" opacity="0.7"/>
+          <text x="28" y="47" font-size="9" fill="#5C1A00" font-family="DM Sans,sans-serif">RU</text>
+          <text x="118" y="47" font-size="9" fill="#042C53" font-family="DM Sans,sans-serif">UA</text>
+          <ellipse cx="80" cy="44" rx="22" ry="22" fill="rgba(26,92,42,0.15)" stroke="rgba(26,92,42,0.4)" stroke-width="0.8" stroke-dasharray="3 2"/>
+          <text x="80" y="41" text-anchor="middle" font-size="8.5" fill="#1A5C2A" font-family="DM Sans,sans-serif" font-weight="500">ZOPA</text>
+          <text x="80" y="52" text-anchor="middle" font-size="7.5" fill="#3B6D11" font-family="DM Sans,sans-serif">overlap</text>
+        </svg>
+      </div>
+      <div class="zopa-badges">
+        <div class="zopa-badge" style="background:#EAF3DE;border-color:#639922;">
+          <div class="zb-tag bg-green">✓ Convergent</div>
+          <div class="zb-title" style="color:#1A5C2A;">All want war to end</div>
+          <div class="zb-desc">Different reasons. Same conclusion.</div>
+        </div>
+        <div class="zopa-badge" style="background:#FAEEDA;border-color:#BA7517;">
+          <div class="zb-tag bg-amber">~ Latent</div>
+          <div class="zb-title" style="color:#854F0B;">European force bridges all parties</div>
+          <div class="zb-desc">Not NATO · Real deterrence · Europeans pay · Autonomy</div>
+        </div>
+        <div class="zopa-badge" style="background:#FCEBEB;border-color:#E24B4A;">
+          <div class="zb-tag bg-red">✗ Zero-sum</div>
+          <div class="zb-title" style="color:#A32D2D;">Territory — agreed ambiguity defers it</div>
+          <div class="zb-desc">No formula resolves. Deferral is the tool.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT WALL -->
+  <div class="right-wall">
+
+    <div class="card gallery-panel clickable-section">
+      <div class="panel-label">Gallery of peace moments</div>
+      <div class="gallery-grid">
+        <div class="gallery-item" title="Nixon and Zhou Enlai, Shanghai 1972">
+          <div class="gallery-caption">Nixon · Zhou<br>Shanghai, 1972</div>
+        </div>
+        <div class="gallery-item" title="Rabin, Arafat and Clinton, Oslo 1993">
+          <div class="gallery-caption">Rabin · Arafat<br>Oslo, 1993</div>
+        </div>
+        <div class="gallery-item" title="Reagan and Gorbachev, Reykjavik 1986">
+          <div class="gallery-caption">Reagan · Gorbachev<br>Reykjavik, 1986</div>
+        </div>
+        <div class="gallery-item" title="Kim Jong Un and Moon Jae-in, Panmunjom 2018">
+          <div class="gallery-caption">Kim · Moon<br>Panmunjom, 2018</div>
+        </div>
+        <div class="gallery-featured" title="Add the aspirational image for this conflict">
+          <div class="gallery-featured-icon">◎</div>
+          <div class="gallery-featured-text"><strong style="font-size:9.5px;display:block;margin-bottom:2px;">Visualizing victory</strong>Add the aspirational image for this conflict</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card balcony-panel clickable-section" onclick="show('speeches',document.querySelectorAll('.nav-tab')[1])">
+      <div class="panel-label">Spatial balcony</div>
+      <div class="balcony-mini">
+        <div class="mini-node" style="left:4%;top:8%;background:var(--putin-bg);border:0.5px solid var(--putin-b);">
+          <div class="mini-node-label" style="color:var(--putin-t);">Putin<br>RU</div>
+        </div>
+        <div class="mini-node" style="right:4%;top:8%;background:var(--zel-bg);border:0.5px solid var(--zel-b);">
+          <div class="mini-node-label" style="color:var(--zel-t);">Zelensky<br>UA</div>
+        </div>
+        <div class="mini-node" style="right:4%;bottom:10%;background:var(--trump-bg);border:0.5px solid var(--trump-b);">
+          <div class="mini-node-label" style="color:var(--trump-t);">Trump<br>US</div>
+        </div>
+        <div class="mini-node" style="left:4%;bottom:10%;background:var(--macron-bg);border:0.5px solid var(--macron-b);">
+          <div class="mini-node-label" style="color:var(--macron-t);">Macron<br>FR</div>
+        </div>
+        <div class="mini-node" style="left:38%;bottom:8%;background:var(--merz-bg);border:0.5px solid var(--merz-b);">
+          <div class="mini-node-label" style="color:var(--merz-t);">Merz<br>DE</div>
+        </div>
+        <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:50px;height:32px;border-radius:50%;background:rgba(26,92,42,0.15);border:1px dashed rgba(26,92,42,0.4);display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:7.5px;color:#1A5C2A;font-weight:500;">ZOPA</span>
+        </div>
+      </div>
+      <button class="balcony-btn">Open spatial balcony →</button>
+    </div>
+
+    <div class="card temporal-panel clickable-section">
+      <div class="panel-label">Temporal balcony</div>
+      <div class="temporal-cols">
+        <div class="t-col-label">Arc of conflict</div>
+        <div class="t-item">Shift summary · all 5 leaders</div>
+        <div class="t-item">What has actually moved</div>
+        <div class="t-col-label">Forward vision</div>
+        <div class="t-item">What resolution looks like</div>
+        <div class="t-item">Where to work today</div>
+        <div class="t-col-label">Open questions</div>
+        <div class="t-item">Get Smart monitors · live</div>
+        <div class="t-item" style="color:#C47A14;">3 shifts flagged this week</div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SPEECHES DEEP DIVE
+══════════════════════════════════════════════════════════ -->
+<div class="view" id="view-speeches">
+<div class="deep">
+  <div class="deep-header">
+    <h1>Victory speeches</h1>
+    <p>Five leaders · Five victories · One settlement · Written in each leader's voice using their own language and rhetorical patterns</p>
+  </div>
+  <p class="speeches-intro">Each speech is written as if delivered on the same day to each leader's own audience, celebrating a successful conclusion from their point of view. The guiding question is not "what does this leader want?" but "how can this leader come out looking like a hero to the people they care most about?" The harmony check confirms no speech requires any other leader to have lost.</p>
+
+  <div class="speeches-grid-full">
+    <div class="speech-full" style="background:var(--putin-bg);border-color:var(--putin-b);border-width:1px;">
+      <div class="sf-header"><div class="sf-name" style="color:var(--putin-t);">Vladimir Putin</div><div class="sf-country" style="color:var(--putin-t);">President of Russia</div><div class="sf-tagline" style="color:var(--putin-t);">Russia stood firm · The world respects us again · Our future is secure</div></div>
+      <div class="sf-body">
+        <div class="sf-theme"><div class="sf-theme-title" style="color:var(--putin-t);">Russia stood firm</div><ul class="sf-bullets"><li style="color:var(--text2);">We protected our people and our civilization from those who sought to destroy them.<span style="position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--putin-b);display:block;"></span></li><li>Russia was not defeated. Russia was not humiliated. Russia did not break.</li><li>What we set out to protect, we protected — and history will record that we were right.</li></ul></div>
+        <div class="sf-theme"><div class="sf-theme-title" style="color:var(--putin-t);">The world respects us again</div><ul class="sf-bullets"><li>Russia sits at the table of great powers — not as a supplicant, but as an equal.</li><li>No settlement was reached without Russia's agreement. No line drawn without Russia's voice.</li><li>We are a civilization. We are a partner or we are an adversary — and they chose wisely.</li></ul></div>
+        <div class="sf-theme"><div class="sf-theme-title" style="color:var(--putin-t);">Our future is secure</div><ul class="sf-bullets"><li>The threat to Russia's western border has been addressed. Our red lines have been respected.</li><li>Russian speakers in the territories that matter most to us are protected — now and going forward.</li><li>Russia will now build — on its own terms — the future our soldiers made possible.</li></ul></div>
+      </div>
+    </div>
+    <div class="speech-full" style="background:var(--zel-bg);border-color:var(--zel-b);border-width:1px;">
+      <div class="sf-header"><div class="sf-name" style="color:var(--zel-t);">Volodymyr Zelensky</div><div class="sf-country" style="color:var(--zel-t);">President of Ukraine</div><div class="sf-tagline" style="color:var(--zel-t);">Ukraine survived · Ukraine chose Europe · Ukraine will rise</div></div>
+      <div class="sf-body">
+        <div class="sf-theme"><div class="sf-theme-title" style="color:var(--zel-t);">Ukraine survived</div><ul class="sf-bullets"><li>On February 24, 2022, they came to erase us. We are still here.</li><li>Ukraine did not fall. Ukraine did not surrender. We gave them our faces, not our backs.</li><li>Every soldier who fought, every family that endured — you made this moment possible.</li></ul></div>
+        <div class="sf-theme"><div class="sf-theme-title" style="color:var(--zel-t);">Ukraine chose Europe</div><ul class="sf-bullets"><li>Ukraine's place in the European family of nations is no longer a question — it is a fact being built.</li><li>The security architecture that protects us is real, it is armed, and it will respond.</li><li>What was taken was not surrendered. Our position in international law is unchanged.</li></ul></div>
+        <div class="sf-theme"><div class="sf-theme-title" style="color:var(--zel-t);">Ukraine will rise</div><ul class="sf-bullets"><li>We will rebuild — not to what we were, but to what we always had the potential to be.</li><li>To those we lost — this is your legacy. Ukraine lives because you chose not to let it die.</li><li>To our children: you will grow up in a Ukraine that is free, safe, and European.</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="speeches-row3">
+    <div class="speech-sm" style="background:var(--trump-bg);border-color:var(--trump-b);border-width:1px;">
+      <div class="ss-header"><div class="ss-name" style="color:var(--trump-t);">Donald Trump</div><div class="ss-country" style="color:var(--trump-t);">President of the United States</div><div class="ss-tagline" style="color:var(--trump-t);">The deal of the century · America First · I did what no one else could</div></div>
+      <div class="ss-body">
+        <div class="ss-theme-title" style="color:var(--trump-t);">The deal of the century</div><ul class="ss-bullets sf-bullets"><li>Three years. Every expert said it couldn't be done. I did it.<span style="position:absolute;left:2px;top:7px;width:4px;height:4px;border-radius:50%;background:var(--trump-b);display:block;"></span></li><li>Biden couldn't do it. Obama couldn't do it. The entire foreign policy establishment failed. I got it done.</li></ul>
+        <div class="ss-theme-title" style="color:var(--trump-t);">America First, always</div><ul class="ss-bullets sf-bullets"><li>America is not writing the check for Europe's security anymore. The Europeans are finally paying their fair share.</li><li>No American soldiers sent into someone else's war.</li></ul>
+        <div class="ss-theme-title" style="color:var(--trump-t);">I did what no one else could</div><ul class="ss-bullets sf-bullets"><li>The guns are silent. Families who were burying their children are not burying them today.</li><li>History will remember this — the man who got it done.</li></ul>
+      </div>
+    </div>
+    <div class="speech-sm" style="background:var(--macron-bg);border-color:var(--macron-b);border-width:1px;">
+      <div class="ss-header"><div class="ss-name" style="color:var(--macron-t);">Emmanuel Macron</div><div class="ss-country" style="color:var(--macron-t);">President of France</div><div class="ss-tagline" style="color:var(--macron-t);">Europe was decisive · France led · The vision was right</div></div>
+      <div class="ss-body">
+        <div class="ss-theme-title" style="color:var(--macron-t);">Europe was decisive</div><ul class="ss-bullets sf-bullets"><li>For the first time in a generation, Europe acted — with its own forces, its own resources, its own will.<span style="position:absolute;left:2px;top:7px;width:4px;height:4px;border-radius:50%;background:var(--macron-b);display:block;"></span></li><li>The sceptics said strategic autonomy was a French vanity project. They were wrong.</li></ul>
+        <div class="ss-theme-title" style="color:var(--macron-t);">France led</div><ul class="ss-bullets sf-bullets"><li>France was the first to say Europe cannot be cowards.</li><li>French diplomacy never stopped working — at every table, in every capital.</li></ul>
+        <div class="ss-theme-title" style="color:var(--macron-t);">The vision was right</div><ul class="ss-bullets sf-bullets"><li>In 2017 I said Europe must become a sovereign power. Today that is not a speech — it is a reality being built.</li></ul>
+      </div>
+    </div>
+    <div class="speech-sm" style="background:var(--merz-bg);border-color:var(--merz-b);border-width:1px;">
+      <div class="ss-header"><div class="ss-name" style="color:var(--merz-t);">Friedrich Merz</div><div class="ss-country" style="color:var(--merz-t);">Chancellor of Germany</div><div class="ss-tagline" style="color:var(--merz-t);">Germany was there · The Zeitenwende was real · We are trusted again</div></div>
+      <div class="ss-body">
+        <div class="ss-theme-title" style="color:var(--merz-t);">Germany was there</div><ul class="ss-bullets sf-bullets"><li>When Ukraine needed weapons, Germany delivered them — without the restrictions that had tied Ukraine's hands.<span style="position:absolute;left:2px;top:7px;width:4px;height:4px;border-radius:50%;background:var(--merz-b);display:block;"></span></li><li>Germany was there. Not watching. Not deliberating. Not abstaining. There.</li></ul>
+        <div class="ss-theme-title" style="color:var(--merz-t);">The Zeitenwende was real</div><ul class="ss-bullets sf-bullets"><li>Germany's credibility as a security partner has been restored. Not because we talked — because we did it.</li></ul>
+        <div class="ss-theme-title" style="color:var(--merz-t);">We are trusted again</div><ul class="ss-bullets sf-bullets"><li>Poland trusts Germany more. The Baltic states trust Germany more. Ukraine trusts Germany more.</li><li>We did not forget where we came from. And precisely because we did not forget, we acted differently.</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="harmony-full">
+    <h3>Harmony check</h3>
+    <p>These five speeches are written to be delivered on the same day, to different audiences, about different things. No speech requires any other leader to have lost. No speech calls any other leader a liar. The one structural tension — Trump says he brokered the deal; Macron says Europe led — is resolved by a single bridging formulation: <em>"America provided the leverage. Europe built the architecture."</em> Both are simultaneously true. Neither diminishes the other.</p>
+    <div style="margin-top:12px;font-size:12px;color:rgba(255,255,255,.5);font-style:italic;">Verdict: The set is harmonious. Five speeches, five different audiences, one settlement. ✓</div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PROFILES DEEP DIVE
+══════════════════════════════════════════════════════════ -->
+<div class="view" id="view-profiles">
+<div class="deep">
+  <div class="deep-header">
+    <h1>Leader profiles</h1>
+    <p>Formation, interests, identity needs, BATNA, deepest fear — for each key actor</p>
+  </div>
+  <div class="placeholder-note">
+    ⚠ Full narrative profiles (6–8 pages each in New Yorker/Atlantic register) exist as separate Word documents. This view shows the executive summary format. The full profiles for Macron and Merz are in macron_full.docx and merz_full.docx. Putin, Zelensky, and Trump full profiles are in individual .docx files.
+  </div>
+
+  <div class="profiles-grid">
+    <div class="profile-card" style="background:var(--putin-bg);border-color:var(--putin-b);">
+      <div class="pc-name" style="color:var(--putin-t);">Vladimir Putin</div>
+      <div class="pc-role" style="color:var(--putin-t);">President of Russia · Age 72</div>
+      <div class="pc-section-label" style="color:var(--putin-t);">Position</div>
+      <div class="pc-val">Recognize territorial gains · No NATO · Security guarantees for Russia's western flank</div>
+      <div class="pc-section-label" style="color:var(--putin-t);">Underlying interest</div>
+      <div class="pc-val">End the war without looking defeated · Restore Russia's great-power status</div>
+      <div class="pc-section-label" style="color:var(--putin-t);">Identity need</div>
+      <div class="pc-val">Not be humiliated · Reverse the 1990s · Avoid the Gaddafi scenario</div>
+      <div class="pc-section-label" style="color:var(--putin-t);">Deepest fear</div>
+      <div class="pc-val" style="font-style:italic;">Not defeat — humiliation. The crowd at the gate with nobody coming.</div>
+      <div class="pc-formation">Formed by: Leningrad siege in family memory · Dresden 1989 — "Moscow is silent" · KGB 16 years · Judo philosophy: leverage over mass · Ivan Ilyin's Russian civilizational mission</div>
+    </div>
+    <div class="profile-card" style="background:var(--zel-bg);border-color:var(--zel-b);">
+      <div class="pc-name" style="color:var(--zel-t);">Volodymyr Zelensky</div>
+      <div class="pc-role" style="color:var(--zel-t);">President of Ukraine · Age 47</div>
+      <div class="pc-section-label" style="color:var(--zel-t);">Position</div>
+      <div class="pc-val">Full territorial restoration · NATO equivalent · War crimes tribunal</div>
+      <div class="pc-section-label" style="color:var(--zel-t);">Underlying interest</div>
+      <div class="pc-val">Settlement his parliament, military, and public can accept as not-surrender · Real deterrence</div>
+      <div class="pc-section-label" style="color:var(--zel-t);">Identity need</div>
+      <div class="pc-val">President who saved Ukraine's existence · Not the one who traded deaths for a ceasefire line</div>
+      <div class="pc-section-label" style="color:var(--zel-t);">Deepest fear</div>
+      <div class="pc-val" style="font-style:italic;">Signing a settlement his own people judge as capitulation. Politically and possibly personally fatal.</div>
+      <div class="pc-formation">Formed by: Kryvyi Rih steel city · Jewish family, Holocaust memory · KVN comedy training · Servant of the People · "I need ammunition, not a ride"</div>
+    </div>
+    <div class="profile-card" style="background:var(--trump-bg);border-color:var(--trump-b);">
+      <div class="pc-name" style="color:var(--trump-t);">Donald Trump</div>
+      <div class="pc-role" style="color:var(--trump-t);">President of the United States · Age 78</div>
+      <div class="pc-section-label" style="color:var(--trump-t);">Position</div>
+      <div class="pc-val">End the war quickly · Stop where you are · Reduce US burden</div>
+      <div class="pc-section-label" style="color:var(--trump-t);">Underlying interest</div>
+      <div class="pc-val">The deal no one else could make · Art of the Deal on history's biggest stage</div>
+      <div class="pc-section-label" style="color:var(--trump-t);">Identity need</div>
+      <div class="pc-val">Greatest dealmaker in history · Credit architecture matters more than substance</div>
+      <div class="pc-section-label" style="color:var(--trump-t);">Deepest fear</div>
+      <div class="pc-val" style="font-style:italic;">Not a bad deal — a deal nobody credits him with. Or one that collapses after he claimed it.</div>
+      <div class="pc-formation">Formed by: Queens vs. Manhattan · Fred Trump "Win, be killers" · NYMA — explicit rules of dominance · Art of the Deal as total worldview · Mother's love of pageantry and scale</div>
+    </div>
+    <div class="profile-card" style="background:var(--macron-bg);border-color:var(--macron-b);">
+      <div class="pc-name" style="color:var(--macron-t);">Emmanuel Macron</div>
+      <div class="pc-role" style="color:var(--macron-t);">President of France · Age 48</div>
+      <div class="pc-section-label" style="color:var(--macron-t);">Position</div>
+      <div class="pc-val">No territorial concessions · European leadership · Ukrainian sovereignty</div>
+      <div class="pc-section-label" style="color:var(--macron-t);">Underlying interest</div>
+      <div class="pc-val">Settlement that proves European strategic autonomy works</div>
+      <div class="pc-section-label" style="color:var(--macron-t);">Identity need</div>
+      <div class="pc-val">Statesman who held European civilization together at its most dangerous moment since 1945</div>
+      <div class="pc-section-label" style="color:var(--macron-t);">Deepest fear</div>
+      <div class="pc-val" style="font-style:italic;">The war ends in a Washington deal where Europe was consulted but not decisive.</div>
+      <div class="pc-formation">Formed by: Amiens childhood · Chose own baptism at 12 · Waited for Brigitte — patience + certainty · 2 years with philosopher Ricoeur · "En même temps" as philosophy, not tic</div>
+    </div>
+    <div class="profile-card" style="background:var(--merz-bg);border-color:var(--merz-b);">
+      <div class="pc-name" style="color:var(--merz-t);">Friedrich Merz</div>
+      <div class="pc-role" style="color:var(--merz-t);">Chancellor of Germany · Age 70</div>
+      <div class="pc-section-label" style="color:var(--merz-t);">Position</div>
+      <div class="pc-val">No reward for aggression · Multilateral guarantees · International law</div>
+      <div class="pc-section-label" style="color:var(--merz-t);">Underlying interest</div>
+      <div class="pc-val">Validates Germany's Zeitenwende · Cements Germany as reliable security partner</div>
+      <div class="pc-section-label" style="color:var(--merz-t);">Identity need</div>
+      <div class="pc-val">Vindication after 20 years of being right about Russia while being ignored</div>
+      <div class="pc-section-label" style="color:var(--merz-t);">Deepest fear</div>
+      <div class="pc-val" style="font-style:italic;">Being the German chancellor whose actions contributed to an escalation that went wrong.</div>
+      <div class="pc-formation">Formed by: Sauerland Catholic conservatism · Nazi-era family shadow · Merkel exile 2002–2022 · BlackRock Germany — understands capital risk · Three failed CDU leadership bids before winning</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ZOPA DEEP DIVE
+══════════════════════════════════════════════════════════ -->
+<div class="view" id="view-zopa">
+<div class="deep">
+  <div class="deep-header">
+    <h1>Zone of possible agreement</h1>
+    <p>Interest mapping · Overlap matrix · Settlement architecture · What remains unresolved</p>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="panel-label">Three-level interest framework</div>
+    <div class="interest-grid">
+      <div class="int-col" style="background:var(--putin-bg);border-color:var(--putin-b);">
+        <div class="int-col-name" style="color:var(--putin-t);">Putin</div><div class="int-col-country" style="color:var(--putin-t);">Russia</div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--putin-t);">Position</div><div class="int-row-val">Recognize territorial gains. No NATO. Security guarantees.</div></div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--putin-t);">Interest</div><div class="int-row-val">End the war without looking defeated. Restore great-power status.</div></div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--putin-t);">Identity need</div><div class="int-row-val">Not be humiliated. Reverse the 1990s. Avoid the Gaddafi scenario.</div></div>
+      </div>
+      <div class="int-col" style="background:var(--zel-bg);border-color:var(--zel-b);">
+        <div class="int-col-name" style="color:var(--zel-t);">Zelensky</div><div class="int-col-country" style="color:var(--zel-t);">Ukraine</div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--zel-t);">Position</div><div class="int-row-val">Full restoration. NATO equivalent. War crimes tribunal.</div></div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--zel-t);">Interest</div><div class="int-row-val">Settlement his public can accept. Real deterrence.</div></div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--zel-t);">Identity need</div><div class="int-row-val">President who saved Ukraine's existence as a nation.</div></div>
+      </div>
+      <div class="int-col" style="background:var(--trump-bg);border-color:var(--trump-b);">
+        <div class="int-col-name" style="color:var(--trump-t);">Trump</div><div class="int-col-country" style="color:var(--trump-t);">United States</div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--trump-t);">Position</div><div class="int-row-val">End the war quickly. Stop where you are. Reduce US burden.</div></div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--trump-t);">Interest</div><div class="int-row-val">A personal victory — the deal no one else could make.</div></div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--trump-t);">Identity need</div><div class="int-row-val">Greatest dealmaker in history. Credit architecture is everything.</div></div>
+      </div>
+      <div class="int-col" style="background:var(--macron-bg);border-color:var(--macron-b);">
+        <div class="int-col-name" style="color:var(--macron-t);">Macron</div><div class="int-col-country" style="color:var(--macron-t);">France</div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--macron-t);">Position</div><div class="int-row-val">No concessions. European leadership. Ukraine sovereignty.</div></div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--macron-t);">Interest</div><div class="int-row-val">Proves European strategic autonomy works.</div></div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--macron-t);">Identity need</div><div class="int-row-val">Statesman who held European civilization together.</div></div>
+      </div>
+      <div class="int-col" style="background:var(--merz-bg);border-color:var(--merz-b);">
+        <div class="int-col-name" style="color:var(--merz-t);">Merz</div><div class="int-col-country" style="color:var(--merz-t);">Germany</div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--merz-t);">Position</div><div class="int-row-val">No reward for aggression. Multilateral. International law.</div></div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--merz-t);">Interest</div><div class="int-row-val">Validates Zeitenwende. Germany as reliable partner.</div></div>
+        <div class="int-row"><div class="int-row-label" style="color:var(--merz-t);">Identity need</div><div class="int-row-val">Vindication after 20 years of being right.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card matrix-wrap" style="margin-bottom:18px;">
+    <div class="panel-label">Overlap matrix — eight issue areas</div>
+    <table>
+      <thead><tr><th style="width:120px;">Issue area</th><th>Putin</th><th>Zelensky</th><th>Trump</th><th>Macron / Merz</th><th style="width:95px;">Overlap</th></tr></thead>
+      <tbody>
+        <tr><td class="issue">End the war</td><td>Needs drain to stop</td><td>Stop the dying — not at any price</td><td>Needs deal urgently</td><td>Stop budget drain</td><td><span class="badge bg-green">✓ Convergent</span></td></tr>
+        <tr><td class="issue">Security architecture</td><td>No NATO — buffer zone</td><td>NATO-equivalent deterrence</td><td>Reduce US burden</td><td>European-led guarantee</td><td><span class="badge bg-amber">~ Latent ZOPA</span></td></tr>
+        <tr><td class="issue">Territorial questions</td><td>Formal recognition</td><td>Full restoration — stated. Flexible — private</td><td>A number on the map</td><td>No formal recognition</td><td><span class="badge bg-red">✗ Zero-sum</span></td></tr>
+        <tr><td class="issue">Face-saving narrative</td><td>Russia not defeated</td><td>Ukraine not surrendered</td><td>Trump the dealmaker</td><td>Europe decisive</td><td><span class="badge bg-amber">~ Latent ZOPA</span></td></tr>
+        <tr><td class="issue">Reconstruction</td><td>Sanctions lifted</td><td>Massive reconstruction aid</td><td>Reduced aid burden</td><td>EU integration of Ukraine</td><td><span class="badge bg-green">✓ Convergent</span></td></tr>
+        <tr><td class="issue">Great power status</td><td>Russia as equal</td><td>Ukraine as sovereign nation</td><td>US as indispensable</td><td>Europe as strategic actor</td><td><span class="badge bg-amber">~ Latent ZOPA</span></td></tr>
+        <tr><td class="issue">Domestic audiences</td><td>Siloviki + Russian public</td><td>Parliament + military + public</td><td>MAGA base</td><td>European publics + E. flank</td><td><span class="badge bg-red">✗ Zero-sum</span></td></tr>
+        <tr><td class="issue">Historical legacy</td><td>Reversed 1990s</td><td>Saved Ukraine's existence</td><td>Greatest dealmaker</td><td>Saved European civilization</td><td><span class="badge bg-amber">~ Latent ZOPA</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-bottom:18px;">
+    <div class="panel-label">Four-pillar settlement architecture</div>
+    <div class="pillars">
+      <div class="pillar"><div class="pillar-num">Pillar 1</div><div class="pillar-title">Ceasefire and separation of forces</div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--putin-t);">Putin</span><span class="p-val">Fighting stops. Forces hold territory.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--zel-t);">Zelensky</span><span class="p-val">The dying stops. Sovereignty claim preserved.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--trump-t);">Trump</span><span class="p-val">He ended the war. The guns are silent.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--macron-t);">Europe</span><span class="p-val">Basis for reconstruction and engagement.</span></div>
+      </div>
+      <div class="pillar"><div class="pillar-num">Pillar 2</div><div class="pillar-title">European peace and security presence</div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--putin-t);">Putin</span><span class="p-val">Not NATO. Not a forward base.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--zel-t);">Zelensky</span><span class="p-val">Credible deterrence. Armed. Will respond.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--trump-t);">Trump</span><span class="p-val">Europeans paying for their own security.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--macron-t);">Europe</span><span class="p-val">Strategic autonomy made operational.</span></div>
+      </div>
+      <div class="pillar"><div class="pillar-num">Pillar 3</div><div class="pillar-title">Agreed ambiguity on territory</div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--putin-t);">Putin</span><span class="p-val">De facto control preserved. No obligation to withdraw.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--zel-t);">Zelensky</span><span class="p-val">No formal recognition. Sovereignty claim intact in law.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--trump-t);">Trump</span><span class="p-val">A number on the map. A deal he can claim.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--macron-t);">Europe</span><span class="p-val">International law not formally violated.</span></div>
+      </div>
+      <div class="pillar"><div class="pillar-num">Pillar 4</div><div class="pillar-title">Reconstruction and normalization</div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--putin-t);">Putin</span><span class="p-val">Path to sanctions relief. Economic normalization.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--zel-t);">Zelensky</span><span class="p-val">Resources to rebuild. EU membership path.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--trump-t);">Trump</span><span class="p-val">Europe and frozen assets pay. US business access.</span></div>
+        <div class="pillar-row"><span class="p-leader" style="color:var(--macron-t);">Europe</span><span class="p-val">EU integration of Ukraine proceeds.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="panel-label">What the ZOPA does not resolve</div>
+    <div class="unresolved">
+      <div class="unres"><div class="unres-title">The war crimes question</div><div class="unres-desc">Zelensky requires an international tribunal. Putin cannot agree to any mechanism that could indict himself. No bridging formula in the near term — most likely deferred, not resolved.</div></div>
+      <div class="unres"><div class="unres-title">The Crimea problem</div><div class="unres-desc">Annexed in 2014, eight years before the full invasion. Putin has called it "sacred." The agreed-ambiguity formula faces a harder test here than on the 2022 territories.</div></div>
+      <div class="unres"><div class="unres-title">The Trump volatility problem</div><div class="unres-desc">Any settlement requiring sustained US commitment is structurally fragile. The European security architecture (Pillar 2) is partly designed to address this — but the initial framework still requires his buy-in.</div></div>
+      <div class="unres"><div class="unres-title">The eastern flank problem</div><div class="unres-desc">Poland, the Baltic states, Finland — critical actors not profiled here. A settlement they regard as appeasement will be actively resisted, potentially undermining the European institutional anchoring.</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     STATEMENTS TRACKER DEEP DIVE
+══════════════════════════════════════════════════════════ -->
+<div class="view" id="view-tracker">
+<div class="deep">
+  <div class="deep-header">
+    <h1>Statements tracker</h1>
+    <p>Key quotes · Shift analysis · Vocabulary patterns · Updated May 14, 2026</p>
+  </div>
+
+  <div class="tracker-note">
+    The statements tracker serves two equally important functions: <strong>intelligence</strong> (tracking movement toward or away from a settlement — is the ZOPA opening or closing?) and <strong>vocabulary</strong> (building the language bank from which victory speeches are written). Every victory speech should sound like the leader. Their actual words and rhetorical rhythms are sourced from this tracker. A full tracker covering all nine themes and the complete 2022–2026 arc exists as a Word document (statements_tracker_all5_leaders.docx). This view shows selected key entries.
+  </div>
+
+  <div class="theme-block">
+    <div class="theme-block-title">Theme 1 — On the nature of the war</div>
+    <div class="quote-card" style="background:var(--putin-bg);border-color:var(--putin-b);">
+      <div class="qc-head"><span class="qc-leader" style="color:var(--putin-t);">Putin</span><span class="qc-meta">· May 9, 2026 · Victory Day address</span></div>
+      <div class="qc-body">
+        <div class="qc-quote">"The matter is coming to an end. We agreed in Istanbul in 2022. The agreement was initialed. Then they told us it was unfair — and the confrontation continues to this day. But Russia sacredly honors the legacy of the generation of victors. We will finish what we started."</div>
+        <div class="qc-note"><div class="qc-note-label">Analyst note</div><div class="qc-note-text">Significant. "Coming to an end" is the most explicit exit-ramp signal Putin has sent. The rehabilitation of Istanbul 2022 as Western-sabotaged is the face-saving narrative being constructed in real time: Russia wanted peace, the West prevented it. Pattern: he is building the story he needs to end this as non-defeat.</div></div>
+      </div>
+    </div>
+    <div class="quote-card" style="background:var(--zel-bg);border-color:var(--zel-b);">
+      <div class="qc-head"><span class="qc-leader" style="color:var(--zel-t);">Zelensky</span><span class="qc-meta">· February 24, 2022 · Night video address from Kyiv streets</span></div>
+      <div class="qc-body">
+        <div class="qc-quote">"We did not raise the white flag. We began to defend the blue and yellow. We were not afraid, we did not break down, we did not surrender."</div>
+        <div class="qc-note"><div class="qc-note-label">Analyst note</div><div class="qc-note-text">The founding statement. Shot on his phone, walking the streets of Kyiv at night. The format itself was the message: the president is here, standing. Everything that followed built on this moment. Note the rhythm: three-part denial structure. It recurs throughout his wartime rhetoric — this is a vocabulary pattern to pull into the victory speech.</div></div>
+      </div>
+    </div>
+    <div class="quote-card" style="background:var(--trump-bg);border-color:var(--trump-b);">
+      <div class="qc-head"><span class="qc-leader" style="color:var(--trump-t);">Trump</span><span class="qc-meta">· February 23, 2022 · Fox Business interview</span></div>
+      <div class="qc-body">
+        <div class="qc-quote">"I went in yesterday and there was a television screen, and I said, 'This is genius.' Putin declares a big portion of Ukraine — of Ukraine — Putin declares it as independent. How smart is that?"</div>
+        <div class="qc-note"><div class="qc-note-label">Analyst note</div><div class="qc-note-text">The "genius" quote — said one day before the full-scale invasion. Trump is reading Putin through the Art of the Deal lens: if you can do it and get away with it, it is smart. This is the opening position from which everything that followed developed. Note: he is not immoral about this — he genuinely does not see territorial aggression as categorically different from a tough negotiating move.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="theme-block">
+    <div class="theme-block-title">Theme 3 — On negotiations, ceasefire, and territorial questions</div>
+    <div class="quote-card" style="background:var(--trump-bg);border-color:var(--trump-b);">
+      <div class="qc-head"><span class="qc-leader" style="color:var(--trump-t);">Trump</span><span class="qc-meta">· October 17, 2025 · Truth Social</span></div>
+      <div class="qc-body">
+        <div class="qc-quote">"Enough blood has been shed, with property lines being defined by War and Guts. Ukraine and Russia should STOP at the battle line, make a deal and start rebuilding their nations!"</div>
+        <div class="qc-note"><div class="qc-note-label">Analyst note</div><div class="qc-note-text">"Property lines defined by War and Guts" — the most revealing phrase in Trump's Ukraine lexicon. Treats national borders as the outcome of a real estate dispute. "Stop at the battle line" is the ceasefire-line-as-border framework. Celebrated in Moscow, caused alarm in Kyiv and European capitals. His most openly pro-Russian territorial statement.</div></div>
+      </div>
+    </div>
+    <div class="quote-card" style="background:var(--zel-bg);border-color:var(--zel-b);">
+      <div class="qc-head"><span class="qc-leader" style="color:var(--zel-t);">Zelensky</span><span class="qc-meta">· October 2025 · Response to Trump "stop where you are" post</span></div>
+      <div class="qc-body">
+        <div class="qc-quote">"The president is right we have to stop where we are, and then to speak. They attacked us, so they are an enemy for us. They don't intend to stop. So they are an enemy. Although, undoubtedly, we hate the enemy."</div>
+        <div class="qc-note"><div class="qc-note-label">Analyst note</div><div class="qc-note-text">Significant shift. Zelensky's first explicit public acceptance of "stop where you are" as a framework — partial validation of the ceasefire-line-as-de-facto-border approach. But the second half — "they are an enemy, they don't intend to stop" — immediately complicates the acceptance. He is simultaneously accepting the ceasefire concept and expressing deep skepticism. This ambivalence is analytically honest and leaves room for negotiation while managing domestic expectations.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="theme-block">
+    <div class="theme-block-title">Theme 4 — On Europe's role vs. America's role</div>
+    <div class="quote-card" style="background:var(--merz-bg);border-color:var(--merz-b);">
+      <div class="qc-head"><span class="qc-leader" style="color:var(--merz-t);">Merz</span><span class="qc-meta">· February 14, 2026 · Munich Security Conference</span></div>
+      <div class="qc-body">
+        <div class="qc-quote">"NATO is not just our, but also, dear American friends, your competitive advantage. My absolute priority will be to strengthen Europe as quickly as possible so that, step by step, we can really achieve independence from the USA."</div>
+        <div class="qc-note"><div class="qc-note-label">Analyst note</div><div class="qc-note-text">"Independence from the USA" — from the most transatlanticist chancellor Germany had produced in a generation. This sentence would have been unimaginable from Merz two years earlier. Trump pushed him here. The convergence of Macron and Merz on this language — both driven to it by Trump — is the most structurally important diplomatic development of 2025-26.</div></div>
+      </div>
+    </div>
+    
+  <div class="quote-card" style="background:var(--putin-bg);border-color:var(--putin-b);">
+    <div class="qc-head">
+      <span class="qc-leader" style="color:var(--putin-t);">Trump</span>
+      <span class="qc-meta">· May 10, 2026· Victory Day media statements</span>
+    </div>
+    <div class="qc-body">
+      <div class="qc-quote">"Europe is playing for escalation but understands this game could be very costly."</div>
+      <div class="qc-note">
+        <div class="qc-note-label">Analyst note</div>
+        <div class="qc-note-text">Putin acknowledging European military support has been effective — itself a form of indirect negotiating signal.</div>
+      </div>
+    </div>
+  </div>
+    
+    <div class="quote-card" style="background:var(--macron-bg);border-color:var(--macron-b);">
+      <div class="qc-head"><span class="qc-leader" style="color:var(--macron-t);">Macron</span><span class="qc-meta">· February 14, 2026 · Munich Security Conference</span></div>
+      <div class="qc-body">
+        <div class="qc-quote">"Europe must stop being naive. The strategic autonomy I have spoken of for nine years is not a slogan — it is now a survival requirement. The Coalition of the Willing is Europe's answer. We are not waiting for permission."</div>
+        <div class="qc-note"><div class="qc-note-label">Analyst note</div><div class="qc-note-text">"We are not waiting for permission" — directed at Washington, stated publicly at MSC. This is the furthest Macron has publicly gone. The Ricoeurian philosopher has become a security hawk. The 2017 Sorbonne vision and the 2026 Munich statement are the same argument — but the second is backed by three years of military commitment and a European force actually in the field.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>The Peace Room &nbsp;·&nbsp; Ukraine–Russia Conflict Prototype &nbsp;·&nbsp; Victory Speech Machine &nbsp;·&nbsp; May 2026</footer>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  else {
+    const map = {home:0,speeches:1,profiles:2,zopa:3,tracker:4};
+    if (map[id] !== undefined) document.querySelectorAll('.nav-tab')[map[id]].classList.add('active');
+  }
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
